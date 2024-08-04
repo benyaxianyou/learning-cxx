@@ -15,21 +15,48 @@ class DynFibonacci {
 
 public:
     // TODO: 实现动态设置容量的构造器
-    DynFibonacci(int capacity): cache(new ?), cached(?) {}
-
+    DynFibonacci(int capacity): cache(new size_t[capacity]), cached(3) {
+        if(capacity >= 2)
+            cache[1] = cache[2] = 1;
+    }
     // TODO: 实现移动构造器
-    DynFibonacci(DynFibonacci &&) noexcept = delete;
+    DynFibonacci(DynFibonacci && others) {
+        cached = others.cached;
+        cache = others.cache;
+        others.cache = nullptr;
+    }
+
+     DynFibonacci(DynFibonacci const &cp){
+        cached = cp.cached;
+        //cache = cp.cache;
+        cache = new size_t[(sizeof(cp.cache) / sizeof(int))];
+        std::copy(cp.cache, cp.cache + cached, cache);
+      
+    }
 
     // TODO: 实现移动赋值
     // NOTICE: ⚠ 注意移动到自身问题 ⚠
-    DynFibonacci &operator=(DynFibonacci &&) noexcept = delete;
+    DynFibonacci &operator=(DynFibonacci && others){
+        if(this != &others){
+        delete []cache;
+        cached = others.cached;
+        cache = others.cache;
+        others.cache = nullptr;
+        others.cached = 0;
+        }
+        else
+            std::cerr << "Warnig: self-assigment detected" << std::endl;
+        return *this;
+    }
 
     // TODO: 实现析构器，释放缓存空间
-    ~DynFibonacci();
+    ~DynFibonacci(){
+        delete []cache;
+    }
 
     // TODO: 实现正确的缓存优化斐波那契计算
     size_t operator[](int i) {
-        for (; false; ++cached) {
+        for (; cached <= i; ++cached) {
             cache[cached] = cache[cached - 1] + cache[cached - 2];
         }
         return cache[i];
